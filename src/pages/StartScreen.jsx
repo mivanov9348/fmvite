@@ -1,9 +1,23 @@
 import { Box, Typography, Button } from "@mui/material";
 import TeamCard from "../components/Team/TeamCard";
 import { useEffect, useState } from "react";
+import { useSelectedTeam } from "../contexts/TeamContext";
+import { useNavigate } from "react-router-dom";
 
 export default function StartScreen() {
   const [teams, setTeams] = useState([]);
+  const [selectTeam, setSelectTeam] = useState(null);
+  const { setSelectedTeam, setAllTeams } = useSelectedTeam();
+
+  const navigate = useNavigate();
+
+  function startGame() {
+    if (selectTeam !== null && teams[selectTeam]) {
+      navigate("/standings");
+    } else {
+      console.log("Please select a team!");
+    }
+  }
 
   useEffect(() => {
     fetchTeams();
@@ -14,7 +28,7 @@ export default function StartScreen() {
       .then((res) => res.json())
       .then((data) => {
         const generatedTeams = generateTeams(data.verbs, data.creatures, 20);
-
+        setAllTeams(generatedTeams);
         setTeams(generatedTeams);
       })
       .catch((err) => console.error("Failed to load!", err));
@@ -34,7 +48,18 @@ export default function StartScreen() {
 
       usedSubjects.push(subject);
       const teamName = `${verb} ${subject}`;
-      generatedTeams.push({ name: teamName, image: subject });
+      generatedTeams.push({
+        name: teamName,
+        image: subject,
+        matches: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        goalsScored: 0,
+        goalsConceded: 0,
+        goalDifference: 0,
+        points: 0,
+      });
     }
     return generatedTeams;
   }
@@ -43,9 +68,10 @@ export default function StartScreen() {
     fetchTeams();
   }
 
-  useEffect(() => {
-    console.log(teams);
-  }, [teams]);
+  function handleSelectTeam(teamIndex) {
+    setSelectTeam(teamIndex);
+    setSelectedTeam(teams[teamIndex]);
+  }
 
   return (
     <Box sx={{ textAlign: "center", m: "auto", p: 1 }}>
@@ -75,8 +101,15 @@ export default function StartScreen() {
         }}
       >
         {teams.map((team, index) => (
-          <Box key={index}>
-            {console.log(team.name)}
+          <Box
+            key={index}
+            sx={{
+              boxShadow:
+                selectTeam === index ? "0px 0px 10px 5px white" : "none",
+              "&:hover": { boxShadow: "0px 0px 10px 5px white" },
+            }}
+            onClick={() => handleSelectTeam(index)}
+          >
             <TeamCard
               key={index}
               teamName={team.name}
@@ -85,6 +118,18 @@ export default function StartScreen() {
           </Box>
         ))}
       </Box>
+      <Button
+        variant="contained"
+        sx={{
+          backgroundColor: "#222",
+          mt: 2,
+          fontWeight: "bolder",
+          "&:hover": { backgroundColor: "black" },
+        }}
+        onClick={startGame}
+      >
+        Start Game
+      </Button>
     </Box>
   );
 }

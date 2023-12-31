@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Box, Typography } from "@mui/material";
 
 export default function TeamCard({ teamName, imageUrl }) {
