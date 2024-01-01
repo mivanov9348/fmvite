@@ -3,16 +3,19 @@ import TeamCard from "../components/Team/TeamCard";
 import { useEffect, useState } from "react";
 import { useSelectedTeam } from "../contexts/TeamContext";
 import { useNavigate } from "react-router-dom";
+import { generateFixtures } from "../components/Fixtures/GenerateFixtures";
 
 export default function StartScreen() {
   const [teams, setTeams] = useState([]);
   const [selectTeam, setSelectTeam] = useState(null);
-  const { setSelectedTeam, setAllTeams } = useSelectedTeam();
+  const { setSelectedTeam, setAllTeams, setFixtures } = useSelectedTeam();
 
   const navigate = useNavigate();
 
   function startGame() {
     if (selectTeam !== null && teams[selectTeam]) {
+      const generatedFixtures = generateFixtures(teams);
+      setFixtures(generatedFixtures);
       navigate("/standings");
     } else {
       console.log("Please select a team!");

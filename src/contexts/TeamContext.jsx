@@ -15,10 +15,18 @@ export function useAllSelectedTeams() {
 export function SelectedTeamProvider({ children }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [allTeams, setAllTeams] = useState([]);
+  const [fixtures, setFixtures] = useState([]);
 
   return (
     <SelectedTeamContext.Provider
-      value={{ selectedTeam, setSelectedTeam, allTeams, setAllTeams }}
+      value={{
+        selectedTeam,
+        setSelectedTeam,
+        allTeams,
+        setAllTeams,
+        fixtures,
+        setFixtures,
+      }}
     >
       {children}
     </SelectedTeamContext.Provider>
