@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SelectedTeamContext = createContext();
 
@@ -16,6 +17,13 @@ export function SelectedTeamProvider({ children }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [allTeams, setAllTeams] = useState([]);
   const [fixtures, setFixtures] = useState([]);
+  const navigate = useNavigate();
+
+  function checkDataAndRedirect() {
+    if (!selectedTeam || allTeams.length === 0 || allTeams.length < 20) {
+      navigate("/");
+    }
+  }
 
   return (
     <SelectedTeamContext.Provider
@@ -26,6 +34,7 @@ export function SelectedTeamProvider({ children }) {
         setAllTeams,
         fixtures,
         setFixtures,
+        checkDataAndRedirect,
       }}
     >
       {children}

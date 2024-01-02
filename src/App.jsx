@@ -6,6 +6,8 @@ import MainLayout from "./Layouts/MainLayout";
 import StartScreen from "./pages/StartScreen";
 import { SelectedTeamProvider } from "./contexts/TeamContext";
 import "./App.css";
+import TeamStats from "./pages/TeamStats";
+import Rules from "./pages/Rules";
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
             <Route path="/game" element={<Game />} />
             <Route path="/standings" element={<Standings />} />
             <Route path="/fixtures" element={<Fixtures />} />
+            <Route path="/teamstats" element={<TeamStats />} />
+            <Route path="/rules" element={<Rules />} />
           </Route>
         </Routes>
       </SelectedTeamProvider>

@@ -77,7 +77,7 @@ export default function StartScreen() {
   }
 
   return (
-    <Box sx={{ textAlign: "center", m: "auto", p: 1 }}>
+    <Box sx={{ textAlign: "center", m: "auto", p: 1, color: "white" }}>
       <Typography variant="h4" sx={{ mb: 1 }}>
         Welcome to Fantasy Football Card Game
       </Typography>
@@ -116,7 +116,7 @@ export default function StartScreen() {
             <TeamCard
               key={index}
               teamName={team.name}
-              imageUrl={`${team.image}.png`}
+              imageUrl={`${team.image}`}
             />
           </Box>
         ))}

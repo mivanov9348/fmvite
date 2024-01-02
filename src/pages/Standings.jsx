@@ -10,10 +10,10 @@ import {
   TableBody,
   Avatar,
   Box,
-  Divider,
 } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { ThemeProvider } from "@emotion/react";
+import { useEffect } from "react";
 
 const theme = createTheme({
   typography: {
@@ -25,7 +25,7 @@ const theme = createTheme({
         root: {
           textAlign: "center",
           color: "#ffffff",
-          fontSize: "25px",
+          fontSize: "24px",
         },
       },
     },
@@ -33,29 +33,29 @@ const theme = createTheme({
 });
 
 export default function Standings() {
-  const { allTeams, selectedTeam } = useSelectedTeam();
+  const { allTeams, selectedTeam, checkDataAndRedirect } = useSelectedTeam();
+
+  useEffect(() => {
+    checkDataAndRedirect();
+  }, [checkDataAndRedirect]);
 
   return (
     <ThemeProvider theme={theme}>
       <Paper
         sx={{
           padding: 3,
-          margin: 1,
-          border: "5px solid black",
-          backgroundColor: "#113951",
-          maxWidth: "110%",
+          margin: 0,
+          backgroundColor: "black",
+          width: "100%",
           mx: "auto",
+          mt: 2,
         }}
       >
-        <Typography variant="h4" sx={{ mb: 2, color: "white" }}>
-          Standings
-        </Typography>
-        <Divider />
         <TableContainer component={Paper}>
           <Table
             sx={{
               minWidth: 650,
-              backgroundColor: "#002941",
+              backgroundColor: "black",
               border: "5px solid black",
             }}
             aria-label="standings table"
@@ -131,13 +131,16 @@ export default function Standings() {
                     <Box
                       sx={{
                         display: "flex",
-                        fontSize: "17px",
                         justifyContent: "center",
                       }}
                     >
                       <Avatar
                         src={`./public/images/logos/${team.image}.png`}
-                        sx={{ width: 30, height: 30, marginRight: 1 }}
+                        sx={{
+                          width: 30,
+                          height: 30,
+                          marginRight: 1,
+                        }}
                       />
                       {team.name}
                     </Box>

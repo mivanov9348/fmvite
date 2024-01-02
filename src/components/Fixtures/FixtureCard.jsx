@@ -20,13 +20,13 @@ export default function FixtureCard({ fixture }) {
   return (
     <Card
       sx={{
-        minWidth: 100,
-        height: 230,
+        width: 250,
+        height: 240,
         margin: 2,
         textAlign: "center",
         justifyContent: "center",
         alignContent: "center",
-        boxShadow: "0px 0px 10px 5px black",
+        boxShadow: "0px 0px 10px 5px white",
         backgroundColor: "#a1a1a1",
       }}
     >
@@ -38,8 +38,8 @@ export default function FixtureCard({ fixture }) {
                 alt={fixture.HomeTeam}
                 src={`public/images/logos/${getImage(fixture.HomeTeam)}.png`}
                 sx={{
-                  width: 110,
-                  height: 110,
+                  width: 80,
+                  height: 80,
                   mb: 1,
                   textAlign: "center",
                   boxShadow:
@@ -59,8 +59,8 @@ export default function FixtureCard({ fixture }) {
                 alt={fixture.AwayTeam}
                 src={`public/images/logos/${getImage(fixture.AwayTeam)}.png`}
                 sx={{
-                  width: 110,
-                  height: 110,
+                  width: 80,
+                  height: 80,
                   mb: 1,
                   ml: 2,
                   textAlign: "center",

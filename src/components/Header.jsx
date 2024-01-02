@@ -6,17 +6,29 @@ const StyledNavLink = styled(NavLink)(({ theme }) => ({
   color: theme.palette.common.white,
   textDecoration: "none",
   marginRight: theme.spacing(2),
+  "&.active": {
+    color: "red",
+  },
 }));
 
 export default function Header() {
   return (
-    <AppBar position="fixed" sx={{ width: "100%" }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        width: "100%",
+        backgroundColor: "black",
+        boxShadow: "0px 0px 10px 5px white",
+        alignItems: "center",
+        fontSize: "20px",
+      }}
+    >
       <Toolbar>
-        <StyledNavLink to="/game">Game</StyledNavLink>
+        <StyledNavLink to="/game">Next Game</StyledNavLink>
         <StyledNavLink to="/standings">Standings</StyledNavLink>
         <StyledNavLink to="/fixtures">Fixtures</StyledNavLink>
-        <StyledNavLink to="/login">Login</StyledNavLink>
-        <StyledNavLink to="/register">Register</StyledNavLink>
+        <StyledNavLink to="/teamstats">Team Stats</StyledNavLink>
+        <StyledNavLink to="/rules">Rules</StyledNavLink>
       </Toolbar>
     </AppBar>
   );

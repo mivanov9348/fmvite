@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import { Box, Typography } from "@mui/material";
 
-export default function TeamCard({ teamName, imageUrl }) {
+export default function TeamCard({ teamName, imageUrl, onClick }) {
+  console.log(imageUrl);
+
   return (
     <Box
       sx={{
@@ -14,10 +16,12 @@ export default function TeamCard({ teamName, imageUrl }) {
         m: 1,
         p: 1,
         textAlign: "center",
+        cursor: "pointer",
       }}
+      onClick={onClick}
     >
       <img
-        src={`./public/images/logos/${imageUrl}`}
+        src={`./public/images/logos/${imageUrl}.png`}
         alt={teamName}
         style={{
           width: "95%",
