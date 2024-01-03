@@ -15,12 +15,12 @@ export function useAllSelectedTeams() {
 
 export function SelectedTeamProvider({ children }) {
   const [selectedTeam, setSelectedTeam] = useState(null);
-  const [allTeams, setAllTeams] = useState([]);
   const [fixtures, setFixtures] = useState([]);
+  const [teams, setTeams] = useState([]);
   const navigate = useNavigate();
 
   function checkDataAndRedirect() {
-    if (!selectedTeam || allTeams.length === 0 || allTeams.length < 20) {
+    if (!selectedTeam || teams.length === 0 || teams.length < 20) {
       navigate("/");
     }
   }
@@ -30,11 +30,11 @@ export function SelectedTeamProvider({ children }) {
       value={{
         selectedTeam,
         setSelectedTeam,
-        allTeams,
-        setAllTeams,
         fixtures,
         setFixtures,
         checkDataAndRedirect,
+        teams,
+        setTeams,
       }}
     >
       {children}

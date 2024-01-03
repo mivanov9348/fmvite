@@ -6,15 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { generateFixtures } from "../components/Fixtures/GenerateFixtures";
 
 export default function StartScreen() {
-  const [teams, setTeams] = useState([]);
+  const [currentTeams, setAllTeams] = useState([]);
   const [selectTeam, setSelectTeam] = useState(null);
-  const { setSelectedTeam, setAllTeams, setFixtures } = useSelectedTeam();
+  const { setSelectedTeam, setTeams, setFixtures } = useSelectedTeam();
 
   const navigate = useNavigate();
 
   function startGame() {
-    if (selectTeam !== null && teams[selectTeam]) {
-      const generatedFixtures = generateFixtures(teams);
+    if (selectTeam !== null && currentTeams[selectTeam]) {
+      const generatedFixtures = generateFixtures(currentTeams);
       setFixtures(generatedFixtures);
       navigate("/standings");
     } else {
@@ -73,7 +73,7 @@ export default function StartScreen() {
 
   function handleSelectTeam(teamIndex) {
     setSelectTeam(teamIndex);
-    setSelectedTeam(teams[teamIndex]);
+    setSelectedTeam(currentTeams[teamIndex]);
   }
 
   return (
@@ -103,7 +103,7 @@ export default function StartScreen() {
           gap: 2,
         }}
       >
-        {teams.map((team, index) => (
+        {currentTeams.map((team, index) => (
           <Box
             key={index}
             sx={{

@@ -1,52 +1,59 @@
+/* eslint-disable no-case-declarations */
 import { Box, Button, Typography } from "@mui/material";
 import GameCard from "../components/Game/GameCard";
-import { useState } from "react";
-
-const faceArr = [
-  "save",
-  "tackle",
-  "throwin",
-  "halftime",
-  "fulltime",
-  "goal",
-  "shoot",
-];
-
-const players = [
-  { name: "Red Devils", goals: 0 },
-  { name: "Blue Lagoons", goals: 0 },
-];
-
-function randomFace() {
-  return faceArr[Math.floor(Math.random() * faceArr.length)];
-}
+import { useEffect, useState } from "react";
+import { useSelectedTeam } from "../contexts/TeamContext";
+import { useGame } from "../contexts/GameContext";
+import { initiliazeCardFace } from "../components/Game/utils/setGameUtills";
+import {
+  calculateMatchesResult,
+  updateTeamStandings,
+} from "../components/Game/utils/endGameUtills";
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [gameEnded, setGameEnded] = useState(false);
   const [cardFaces, setCardFaces] = useState([]);
+  const { selectedTeam, fixtures, setFixtures, teams, setTeams } =
+    useSelectedTeam();
+  const { currentGame, setCurrentGame } = useGame();
+
+  useEffect(() => {
+    const nextFixture = fixtures.find(
+      (fixture) =>
+        (fixture.HomeTeam === selectedTeam.name ||
+          fixture.AwayTeam === selectedTeam.name) &&
+        !fixture.isPlayed
+    );
+
+    setCurrentGame(nextFixture);
+  }, [fixtures, selectedTeam, setCurrentGame]);
 
   function startGame() {
     setGameStarted(true);
     setCurrentPlayer(0);
-    initializeCardFaces();
-  }
-
-  function initializeCardFaces() {
-    const faces = Array.from({ length: 15 }, () => randomFace());
+    const faces = initiliazeCardFace();
     setCardFaces(faces);
   }
 
   function handleCardAction(face) {
-    console.log(face);
-
     if (gameEnded) return;
     let changeTurn = false;
 
     switch (face) {
       case "goal":
-        players[currentPlayer].goals += 1;
+        if (currentPlayer === 0) {
+          setCurrentGame({
+            ...currentGame,
+            HomeTeamScore: currentGame.HomeTeamScore + 1,
+          });
+        } else {
+          setCurrentGame({
+            ...currentGame,
+            AwayTeamScore: currentGame.AwayTeamScore + 1,
+          });
+        }
         changeTurn = true;
         break;
       case "save":
@@ -55,6 +62,25 @@ export default function Game() {
         break;
       case "fulltime":
         setGameEnded(true);
+        const updatedGame = { ...currentGame, isPlayed: true };
+        setCurrentGame(updatedGame);
+        const updatedFixtures = fixtures.map((f) =>
+          f.id === updatedGame.id ? updatedGame : f
+        );
+
+        const newFixtures = calculateMatchesResult(
+          updatedFixtures,
+          updatedGame.round
+        );
+        setFixtures(newFixtures);
+
+        const newTeams = updateTeamStandings(
+          newFixtures,
+          teams,
+          currentGame.round
+        );
+        setTeams(newTeams);
+
         return;
       case "throwin":
       case "shoot":
@@ -73,8 +99,8 @@ export default function Game() {
       sx={{
         display: "flex",
         flexDirection: "column",
-        alignItems: "center", // Centers content horizontally in the container
-        height: gameStarted ? "auto" : "100vh", // Full viewport height before game starts
+        alignItems: "center",
+        height: gameStarted ? "auto" : "100vh",
       }}
     >
       {gameEnded && (
@@ -126,7 +152,7 @@ export default function Game() {
               color: currentPlayer === 0 && gameStarted ? "red" : "black",
             }}
           >
-            {players[0].name}
+            {currentGame?.HomeTeam}
           </span>
           {" - "}
           <span
@@ -134,11 +160,11 @@ export default function Game() {
               color: currentPlayer === 1 && gameStarted ? "red" : "black",
             }}
           >
-            {players[1].name}
+            {currentGame?.AwayTeam}
           </span>
         </Typography>
         <Typography variant="h6" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
-          {players[0].goals}:{players[1].goals}
+          {currentGame?.HomeTeamScore}:{currentGame?.AwayTeamScore}
         </Typography>
       </Box>
       {!gameStarted && (

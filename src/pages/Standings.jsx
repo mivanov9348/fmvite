@@ -33,11 +33,26 @@ const theme = createTheme({
 });
 
 export default function Standings() {
-  const { allTeams, selectedTeam, checkDataAndRedirect } = useSelectedTeam();
+  const { teams, selectedTeam, checkDataAndRedirect } = useSelectedTeam();
 
   useEffect(() => {
     checkDataAndRedirect();
   }, [checkDataAndRedirect]);
+
+  function sortTeams(a, b) {
+    if (a.points !== b.points) {
+      return b.points - a.points;
+    }
+    if (a.goalDifference !== b.goalDifference) {
+      return b.goalDifference - a.goalDifference;
+    }
+    if (a.goalsScored !== b.goalsScored) {
+      return b.goalsScored - a.goalsScored;
+    }
+    return a.goalsConceded - b.goalsConceded;
+  }
+
+  const sortedTeams = [...teams].sort(sortTeams);
 
   return (
     <ThemeProvider theme={theme}>
@@ -101,12 +116,12 @@ export default function Standings() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {allTeams.map((team, index) => (
+              {sortedTeams.map((team, index) => (
                 <TableRow
                   key={index}
                   sx={{
                     "&:last-child td, &:last-child th": { border: 0 },
-                    color: selectedTeam == team ? "red" : "none",
+                    color: selectedTeam === team ? "red" : "none",
                     textAlign: "center",
                   }}
                 >
@@ -115,7 +130,7 @@ export default function Standings() {
                       variant="body1"
                       sx={{
                         mr: 1,
-                        color: selectedTeam == team ? "red" : "none",
+                        color: selectedTeam === team ? "red" : "none",
                       }}
                     >
                       {index + 1}
@@ -125,7 +140,7 @@ export default function Standings() {
                     component="th"
                     scope="row"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     <Box
@@ -148,7 +163,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.matches}
@@ -156,7 +171,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.wins}
@@ -164,7 +179,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.draws}
@@ -172,7 +187,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.losses}
@@ -180,7 +195,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.goalsScored}
@@ -188,7 +203,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.goalsConceded}
@@ -196,7 +211,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.goalDifference}
@@ -204,7 +219,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam == team ? "red" : "none",
+                      color: selectedTeam === team ? "red" : "none",
                     }}
                   >
                     {team.points}

@@ -37,6 +37,7 @@ export function generateFixtures(teams) {
           AwayTeam: awayTeam.name,
           HomeTeamScore: 0,
           AwayTeamScore: 0,
+          isPlayed: false,
         });
       }
     }

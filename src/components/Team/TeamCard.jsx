@@ -2,8 +2,6 @@
 import { Box, Typography } from "@mui/material";
 
 export default function TeamCard({ teamName, imageUrl, onClick }) {
-  console.log(imageUrl);
-
   return (
     <Box
       sx={{

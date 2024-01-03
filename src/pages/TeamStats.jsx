@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import TeamStatsModal from "../components/Team/TeamStatsModal";
 
 export default function TeamStats() {
-  const { allTeams, checkDataAndRedirect } = useSelectedTeam();
+  const { teams, checkDataAndRedirect } = useSelectedTeam();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState(null);
 
@@ -27,7 +27,7 @@ export default function TeamStats() {
         p: 2,
       }}
     >
-      {allTeams.map((team, index) => (
+      {teams.map((team, index) => (
         <TeamCard
           key={index}
           teamName={team.name}
