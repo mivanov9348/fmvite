@@ -1,10 +1,13 @@
 /* eslint-disable no-case-declarations */
 import { Box, Button, Typography } from "@mui/material";
 import GameCard from "../components/Game/GameCard";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelectedTeam } from "../contexts/TeamContext";
 import { useGame } from "../contexts/GameContext";
-import { initiliazeCardFace } from "../components/Game/utils/setGameUtills";
+import {
+  initiliazeCardFace,
+  findNextFixture,
+} from "../components/Game/utils/setGameUtills";
 import {
   calculateMatchesResult,
   updateTeamStandings,
@@ -18,41 +21,64 @@ export default function Game() {
   const { selectedTeam, fixtures, setFixtures, teams, setTeams } =
     useSelectedTeam();
   const { currentGame, setCurrentGame } = useGame();
+  const [showNextMatchButton, setShowNextMatchButton] = useState(false);
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
 
   useEffect(() => {
-    const nextFixture = fixtures.find(
-      (fixture) =>
-        (fixture.HomeTeam === selectedTeam.name ||
-          fixture.AwayTeam === selectedTeam.name) &&
-        !fixture.isPlayed
-    );
-
-    setCurrentGame(nextFixture);
-  }, [fixtures, selectedTeam, setCurrentGame]);
+    if (!isPlayerTurn) {
+      setTimeout(initiatePCTurn, 2000); // Delay for a realistic feel
+    }
+  }, [isPlayerTurn]);
 
   function startGame() {
+    const nextFixture = findNextFixture(fixtures, selectedTeam);
+
+    setCurrentGame(nextFixture);
+
     setGameStarted(true);
     setCurrentPlayer(0);
     const faces = initiliazeCardFace();
     setCardFaces(faces);
+    setShowNextMatchButton(false);
   }
 
-  function handleCardAction(face) {
-    if (gameEnded) return;
-    let changeTurn = false;
+  function handleCardAction(face, isPlayer = true, index) {
+    console.log("Action:", face, "Is Player:", isPlayer);
+
+    if (
+      gameEnded ||
+      (isPlayer && !isPlayerTurn) ||
+      (!isPlayer && isPlayerTurn)
+    ) {
+      console.log("Action not allowed under current conditions");
+
+      return;
+    }
+
+    let changeTurn = true;
+
+    setCardFaces((prevFaces) => {
+      const newFaces = [...prevFaces];
+      newFaces[index].opened = true;
+      console.log("Updated cardFaces:", newFaces); // Debugging log
+
+      return newFaces;
+    });
 
     switch (face) {
       case "goal":
         if (currentPlayer === 0) {
-          setCurrentGame({
+          setCurrentGame((currentGame) => ({
             ...currentGame,
-            HomeTeamScore: currentGame.HomeTeamScore + 1,
-          });
-        } else {
-          setCurrentGame({
-            ...currentGame,
-            AwayTeamScore: currentGame.AwayTeamScore + 1,
-          });
+            HomeTeamScore:
+              currentPlayer === 0
+                ? currentGame.HomeTeamScore + 1
+                : currentGame.HomeTeamScore,
+            AwayTeamScore:
+              currentPlayer === 1
+                ? currentGame.AwayTeamScore + 1
+                : currentGame.AwayTeamScore,
+          }));
         }
         changeTurn = true;
         break;
@@ -62,36 +88,78 @@ export default function Game() {
         break;
       case "fulltime":
         setGameEnded(true);
-        const updatedGame = { ...currentGame, isPlayed: true };
-        setCurrentGame(updatedGame);
-        const updatedFixtures = fixtures.map((f) =>
-          f.id === updatedGame.id ? updatedGame : f
-        );
 
-        const newFixtures = calculateMatchesResult(
-          updatedFixtures,
-          updatedGame.round
-        );
-        setFixtures(newFixtures);
+        setCurrentGame((currentGame) => {
+          const updatedGame = { ...currentGame, isPlayed: true };
 
-        const newTeams = updateTeamStandings(
-          newFixtures,
-          teams,
-          currentGame.round
-        );
-        setTeams(newTeams);
+          setFixtures((fixtures) => {
+            const updatedFixtures = fixtures.map((f) =>
+              f.id === updatedGame.id ? updatedGame : f
+            );
 
+            const newFixtures = calculateMatchesResult(
+              updatedFixtures,
+              updatedGame.round
+            );
+            setTeams(() => {
+              return updateTeamStandings(newFixtures, teams, updatedGame.round);
+            });
+
+            return newFixtures;
+          });
+
+          return updatedGame;
+        });
+
+        setShowNextMatchButton(true);
         return;
+
       case "throwin":
       case "shoot":
+        changeTurn = false;
+        if (!isPlayer) {
+          initiatePCTurn();
+        }
         break;
       default:
-        changeTurn = true;
+        console.log("Unrecognized card action:", face);
     }
 
     if (changeTurn) {
-      setCurrentPlayer(currentPlayer === 0 ? 1 : 0);
+      setIsPlayerTurn((currentTurn) => !currentTurn);
     }
+  }
+
+  function initiatePCTurn() {
+    // Delay the PC's turn for a realistic feel
+    setTimeout(() => {
+      const unopenedCards = cardFaces.filter((card) => !card.opened);
+      if (unopenedCards.length === 0) {
+        console.log("No more cards to open");
+        return;
+      }
+      const pcCardIndex = Math.floor(Math.random() * unopenedCards.length);
+      const pcAction = unopenedCards[pcCardIndex];
+      const originalIndex = cardFaces.findIndex(
+        (card) => card.face === pcAction.face
+      );
+
+      handleCardAction(pcAction.face, false, originalIndex);
+    }, 2000);
+  }
+
+  function loadNextMatch() {
+    const nextFixture = findNextFixture(fixtures, selectedTeam);
+
+    if (nextFixture) {
+      setCurrentGame(nextFixture);
+    } else {
+      console.log("No more fixtures available");
+    }
+
+    setGameStarted(false);
+    setGameEnded(false);
+    setShowNextMatchButton(false);
   }
 
   return (
@@ -103,36 +171,24 @@ export default function Game() {
         height: gameStarted ? "auto" : "100vh",
       }}
     >
-      {gameEnded && (
+      {gameEnded && showNextMatchButton && (
         <Box
           sx={{
-            backgroundColor: "#5f5f5f",
-            border: "2px solid black",
-            padding: "10px",
-            borderRadius: "5px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            marginBottom: "10px",
-            mt: gameStarted ? "20px" : 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            fontFamily: "JACKPORT COLLEGE NCV",
-            textAlign: "center",
-            color: "#ffffff",
+            backgroundColor: "white",
+            mt: 2,
+            borderRadius: "10px",
+            "&:hover": { backgroundColor: "grey" },
           }}
         >
-          <Typography
-            variant="h5"
-            sx={{
-              mt: "10px",
-              fontFamily: "JACKPORT COLLEGE NCV",
-              color: "darkgreen",
-            }}
+          <Button
+            onClick={loadNextMatch}
+            sx={{ "&:hover": { color: "white" } }}
           >
-            Game Over
-          </Typography>
+            Next Match
+          </Button>
         </Box>
       )}
+
       <Box
         sx={{
           backgroundColor: "#5f5f5f",
@@ -164,9 +220,42 @@ export default function Game() {
           </span>
         </Typography>
         <Typography variant="h6" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
-          {currentGame?.HomeTeamScore}:{currentGame?.AwayTeamScore}
+          {gameStarted
+            ? `${currentGame?.HomeTeamScore}:${currentGame?.AwayTeamScore}`
+            : ""}
         </Typography>
+        {gameEnded && (
+          <Box
+            sx={{
+              backgroundColor: "white",
+              border: "2px solid black",
+              padding: "1px",
+              borderRadius: "5px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              marginBottom: "2px",
+              mt: gameStarted ? "2px" : 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              fontFamily: "JACKPORT COLLEGE NCV",
+              textAlign: "center",
+              color: "#ffffff",
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                mt: "1px",
+                fontFamily: "JACKPORT COLLEGE NCV",
+                color: "red",
+              }}
+            >
+              Game Over
+            </Typography>
+          </Box>
+        )}
       </Box>
+
       {!gameStarted && (
         <Button
           sx={{
@@ -184,7 +273,6 @@ export default function Game() {
           Start
         </Button>
       )}
-
       {gameStarted && (
         <Box
           sx={{
@@ -202,13 +290,14 @@ export default function Game() {
             margin: "auto",
           }}
         >
-          {cardFaces.map((faceValue, index) => (
+          {cardFaces.map((card, index) => (
             <Box key={index} sx={{ textAlign: "center" }}>
               <GameCard
                 back="backcard"
-                face={faceValue}
-                clickable={gameStarted && !gameEnded}
-                onClick={() => handleCardAction(faceValue)}
+                face={card.face}
+                flipped={card.opened}
+                clickable={gameStarted && !gameEnded && isPlayerTurn}
+                onClick={() => handleCardAction(card.face, true, index)}
               />
             </Box>
           ))}

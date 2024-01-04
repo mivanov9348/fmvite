@@ -1,4 +1,6 @@
 export function calculateMatchesResult(fixtures, currentRound) {
+  console.log(fixtures);
+
   return fixtures.map((fixture) => {
     if (fixture.round === currentRound && !fixture.isPlayed) {
       return {
@@ -8,11 +10,15 @@ export function calculateMatchesResult(fixtures, currentRound) {
         isPlayed: true,
       };
     }
+    console.log(fixture);
+
     return fixture;
   });
 }
 
 export function updateTeamStandings(fixtures, teams, currentRound) {
+  console.log(teams);
+
   // Create a deep copy of teams to avoid mutating the original data
   let updatedTeams = teams.map((team) => ({
     ...team,
@@ -69,6 +75,7 @@ export function updateTeamStandings(fixtures, teams, currentRound) {
     homeTeam.goalDifference = homeTeam.goalsScored - homeTeam.goalsConceded;
     awayTeam.goalDifference = awayTeam.goalsScored - awayTeam.goalsConceded;
   });
+  console.log(updatedTeams);
 
   return updatedTeams;
 }

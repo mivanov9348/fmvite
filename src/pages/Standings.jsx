@@ -121,7 +121,7 @@ export default function Standings() {
                   key={index}
                   sx={{
                     "&:last-child td, &:last-child th": { border: 0 },
-                    color: selectedTeam === team ? "red" : "none",
+                    color: selectedTeam.name === team.name ? "red" : "none",
                     textAlign: "center",
                   }}
                 >
@@ -130,7 +130,7 @@ export default function Standings() {
                       variant="body1"
                       sx={{
                         mr: 1,
-                        color: selectedTeam === team ? "red" : "none",
+                        color: selectedTeam.name === team.name ? "red" : "none",
                       }}
                     >
                       {index + 1}
@@ -140,7 +140,7 @@ export default function Standings() {
                     component="th"
                     scope="row"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     <Box
@@ -163,7 +163,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.matches}
@@ -171,7 +171,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.wins}
@@ -179,7 +179,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.draws}
@@ -187,7 +187,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.losses}
@@ -195,7 +195,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.goalsScored}
@@ -203,7 +203,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.goalsConceded}
@@ -211,7 +211,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.goalDifference}
@@ -219,7 +219,7 @@ export default function Standings() {
                   <TableCell
                     align="right"
                     sx={{
-                      color: selectedTeam === team ? "red" : "none",
+                      color: selectedTeam.name === team.name ? "red" : "none",
                     }}
                   >
                     {team.points}

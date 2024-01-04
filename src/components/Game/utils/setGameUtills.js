@@ -5,7 +5,7 @@ export function randomFace() {
 }
 
 export function initiliazeCardFace() {
-  const faces = Array.from({ length: 14 }, () => randomFace());
+  let faces = Array.from({ length: 14 }, () => randomFace());
   faces.push("fulltime");
 
   for (let i = faces.length - 1; i > 0; i--) {
@@ -13,5 +13,14 @@ export function initiliazeCardFace() {
     [faces[i], faces[j]] = [faces[j], faces[i]]; // Swap elements
   }
 
-  return faces;
+  return faces.map((face) => ({ face, opened: false }));
+}
+
+export function findNextFixture(fixtures, selectedTeam) {
+  return fixtures.find(
+    (fixture) =>
+      (fixture.HomeTeam === selectedTeam.name ||
+        fixture.AwayTeam === selectedTeam.name) &&
+      !fixture.isPlayed
+  );
 }

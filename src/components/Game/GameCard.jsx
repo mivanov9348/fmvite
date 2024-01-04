@@ -1,12 +1,9 @@
+/* eslint-disable react/prop-types */
 import { Box, CardMedia, Typography } from "@mui/material";
-import { useState } from "react";
 
-export default function GameCard({ back, face, clickable, onClick }) {
-  const [flipped, setFlipped] = useState(false);
-
+export default function GameCard({ back, face, clickable, flipped, onClick }) {
   function handleClick() {
     if (clickable && !flipped) {
-      setFlipped(!flipped);
       onClick();
     }
   }
