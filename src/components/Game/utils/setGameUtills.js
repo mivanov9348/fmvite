@@ -1,4 +1,4 @@
-const faceArr = ["save", "tackle", "throwin", "goal", "shoot"];
+import faceArr from "./gameConstants.js";
 
 export function randomFace() {
   return faceArr[Math.floor(Math.random() * faceArr.length)];

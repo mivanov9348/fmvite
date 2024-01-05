@@ -12,6 +12,8 @@ import {
   calculateMatchesResult,
   updateTeamStandings,
 } from "../components/Game/utils/endGameUtills";
+import GameOver from "../components/Game/GameOver";
+import GameComment from "../components/Game/GameComment";
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -23,18 +25,17 @@ export default function Game() {
   const { currentGame, setCurrentGame } = useGame();
   const [showNextMatchButton, setShowNextMatchButton] = useState(false);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [message, setMessage] = useState(true);
 
   useEffect(() => {
     if (!isPlayerTurn) {
-      setTimeout(initiatePCTurn, 2000); // Delay for a realistic feel
+      setTimeout(initiatePCTurn, 2000);
     }
   }, [isPlayerTurn]);
 
   function startGame() {
     const nextFixture = findNextFixture(fixtures, selectedTeam);
-
     setCurrentGame(nextFixture);
-
     setGameStarted(true);
     setCurrentPlayer(0);
     const faces = initiliazeCardFace();
@@ -60,30 +61,55 @@ export default function Game() {
     setCardFaces((prevFaces) => {
       const newFaces = [...prevFaces];
       newFaces[index].opened = true;
-      console.log("Updated cardFaces:", newFaces); // Debugging log
-
       return newFaces;
     });
 
     switch (face) {
       case "goal":
-        if (currentPlayer === 0) {
-          setCurrentGame((currentGame) => ({
-            ...currentGame,
-            HomeTeamScore:
-              currentPlayer === 0
-                ? currentGame.HomeTeamScore + 1
-                : currentGame.HomeTeamScore,
-            AwayTeamScore:
-              currentPlayer === 1
-                ? currentGame.AwayTeamScore + 1
-                : currentGame.AwayTeamScore,
-          }));
-        }
+        setCurrentGame((currentGame) => {
+          const playerTeam =
+            selectedTeam.id === currentGame.HomeTeamId ? "Home" : "Away";
+          const pcTeam = playerTeam === "Home" ? "Away" : "Home";
+
+          if (isPlayer) {
+            setMessage(`${selectedTeam.name} score a goal!`);
+
+            return {
+              ...currentGame,
+              HomeTeamScore:
+                playerTeam === "Home"
+                  ? currentGame.HomeTeamScore + 1
+                  : currentGame.HomeTeamScore,
+              AwayTeamScore:
+                playerTeam === "Away"
+                  ? currentGame.AwayTeamScore + 1
+                  : currentGame.AwayTeamScore,
+            };
+          } else {
+            const pcTeamName =
+              pcTeam === "Home" ? currentGame.HomeTeam : currentGame.AwayTeam;
+            setMessage(`${pcTeamName} scored a goal!`);
+            return {
+              ...currentGame,
+              HomeTeamScore:
+                pcTeam === "Home"
+                  ? currentGame.HomeTeamScore + 1
+                  : currentGame.HomeTeamScore,
+              AwayTeamScore:
+                pcTeam === "Away"
+                  ? currentGame.AwayTeamScore + 1
+                  : currentGame.AwayTeamScore,
+            };
+          }
+        });
         changeTurn = true;
         break;
       case "save":
+        setMessage("The goalkeeper saves the ball!");
+        changeTurn = true;
+        break;
       case "tackle":
+        setMessage("Tackle! The ball is for the opposite!");
         changeTurn = true;
         break;
       case "fulltime":
@@ -115,6 +141,12 @@ export default function Game() {
         return;
 
       case "throwin":
+        setMessage("The player is ready for throw in!");
+        changeTurn = false;
+        if (!isPlayer) {
+          initiatePCTurn();
+        }
+        break;
       case "shoot":
         changeTurn = false;
         if (!isPlayer) {
@@ -131,7 +163,6 @@ export default function Game() {
   }
 
   function initiatePCTurn() {
-    // Delay the PC's turn for a realistic feel
     setTimeout(() => {
       const unopenedCards = cardFaces.filter((card) => !card.opened);
       if (unopenedCards.length === 0) {
@@ -145,7 +176,7 @@ export default function Game() {
       );
 
       handleCardAction(pcAction.face, false, originalIndex);
-    }, 2000);
+    }, 1000);
   }
 
   function loadNextMatch() {
@@ -153,13 +184,16 @@ export default function Game() {
 
     if (nextFixture) {
       setCurrentGame(nextFixture);
+      setGameStarted(true);
+      setGameEnded(false);
+      setShowNextMatchButton(false);
+      setCurrentPlayer(0);
+      const faces = initiliazeCardFace();
+      setCardFaces(faces);
+      setIsPlayerTurn(true);
     } else {
       console.log("No more fixtures available");
     }
-
-    setGameStarted(false);
-    setGameEnded(false);
-    setShowNextMatchButton(false);
   }
 
   return (
@@ -208,7 +242,7 @@ export default function Game() {
               color: currentPlayer === 0 && gameStarted ? "red" : "black",
             }}
           >
-            {currentGame?.HomeTeam}
+            {currentGame ? currentGame.HomeTeam : "Home Team"}
           </span>
           {" - "}
           <span
@@ -216,43 +250,18 @@ export default function Game() {
               color: currentPlayer === 1 && gameStarted ? "red" : "black",
             }}
           >
-            {currentGame?.AwayTeam}
+            {currentGame ? currentGame.AwayTeam : "Away Team"}
           </span>
         </Typography>
         <Typography variant="h6" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
-          {gameStarted
-            ? `${currentGame?.HomeTeamScore}:${currentGame?.AwayTeamScore}`
-            : ""}
+          {currentGame
+            ? `${currentGame.HomeTeamScore}:${currentGame.AwayTeamScore}`
+            : "0:0"}
         </Typography>
-        {gameEnded && (
-          <Box
-            sx={{
-              backgroundColor: "white",
-              border: "2px solid black",
-              padding: "1px",
-              borderRadius: "5px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-              marginBottom: "2px",
-              mt: gameStarted ? "2px" : 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              fontFamily: "JACKPORT COLLEGE NCV",
-              textAlign: "center",
-              color: "#ffffff",
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{
-                mt: "1px",
-                fontFamily: "JACKPORT COLLEGE NCV",
-                color: "red",
-              }}
-            >
-              Game Over
-            </Typography>
-          </Box>
+        {gameEnded ? (
+          <GameOver gameStarted={gameStarted} />
+        ) : (
+          <GameComment message={message} />
         )}
       </Box>
 
