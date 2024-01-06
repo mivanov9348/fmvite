@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import GameCard from "../components/Game/GameCard";
 import { useState, useEffect } from "react";
 import { useSelectedTeam } from "../contexts/TeamContext";
@@ -12,8 +12,7 @@ import {
   calculateMatchesResult,
   updateTeamStandings,
 } from "../components/Game/utils/endGameUtills";
-import GameOver from "../components/Game/GameOver";
-import GameComment from "../components/Game/GameComment";
+import GameScoreboard from "../components/Game/GameScoreboard";
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -67,43 +66,44 @@ export default function Game() {
     switch (face) {
       case "goal":
         setCurrentGame((currentGame) => {
-          const playerTeam =
-            selectedTeam.id === currentGame.HomeTeamId ? "Home" : "Away";
-          const pcTeam = playerTeam === "Home" ? "Away" : "Home";
+          // Determine if the selected team is playing at home or away
+          const isPlayerHomeTeam = selectedTeam.id === currentGame.HomeTeamId;
 
           if (isPlayer) {
-            setMessage(`${selectedTeam.name} score a goal!`);
-
-            return {
-              ...currentGame,
-              HomeTeamScore:
-                playerTeam === "Home"
-                  ? currentGame.HomeTeamScore + 1
-                  : currentGame.HomeTeamScore,
-              AwayTeamScore:
-                playerTeam === "Away"
-                  ? currentGame.AwayTeamScore + 1
-                  : currentGame.AwayTeamScore,
-            };
+            // Player's turn
+            if (isPlayerHomeTeam) {
+              // Player's team is the home team
+              return {
+                ...currentGame,
+                HomeTeamScore: currentGame.HomeTeamScore + 1,
+              };
+            } else {
+              // Player's team is the away team
+              return {
+                ...currentGame,
+                AwayTeamScore: currentGame.AwayTeamScore + 1,
+              };
+            }
           } else {
-            const pcTeamName =
-              pcTeam === "Home" ? currentGame.HomeTeam : currentGame.AwayTeam;
-            setMessage(`${pcTeamName} scored a goal!`);
-            return {
-              ...currentGame,
-              HomeTeamScore:
-                pcTeam === "Home"
-                  ? currentGame.HomeTeamScore + 1
-                  : currentGame.HomeTeamScore,
-              AwayTeamScore:
-                pcTeam === "Away"
-                  ? currentGame.AwayTeamScore + 1
-                  : currentGame.AwayTeamScore,
-            };
+            // PC's turn
+            if (isPlayerHomeTeam) {
+              // PC's team is the away team
+              return {
+                ...currentGame,
+                AwayTeamScore: currentGame.AwayTeamScore + 1,
+              };
+            } else {
+              // PC's team is the home team
+              return {
+                ...currentGame,
+                HomeTeamScore: currentGame.HomeTeamScore + 1,
+              };
+            }
           }
         });
         changeTurn = true;
         break;
+
       case "save":
         setMessage("The goalkeeper saves the ball!");
         changeTurn = true;
@@ -223,47 +223,14 @@ export default function Game() {
         </Box>
       )}
 
-      <Box
-        sx={{
-          backgroundColor: "#5f5f5f",
-          color: "#ffffff",
-          border: "2px solid black",
-          padding: "10px",
-          borderRadius: "5px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          marginTop: "20px",
-          textAlign: "center",
-          fontFamily: "JACKPORT COLLEGE NCV",
-        }}
-      >
-        <Typography variant="h5" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
-          <span
-            style={{
-              color: currentPlayer === 0 && gameStarted ? "red" : "black",
-            }}
-          >
-            {currentGame ? currentGame.HomeTeam : "Home Team"}
-          </span>
-          {" - "}
-          <span
-            style={{
-              color: currentPlayer === 1 && gameStarted ? "red" : "black",
-            }}
-          >
-            {currentGame ? currentGame.AwayTeam : "Away Team"}
-          </span>
-        </Typography>
-        <Typography variant="h6" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
-          {currentGame
-            ? `${currentGame.HomeTeamScore}:${currentGame.AwayTeamScore}`
-            : "0:0"}
-        </Typography>
-        {gameEnded ? (
-          <GameOver gameStarted={gameStarted} />
-        ) : (
-          <GameComment message={message} />
-        )}
-      </Box>
+      <GameScoreboard
+        currentGame={currentGame}
+        gameStarted={gameStarted}
+        gameEnded={gameEnded}
+        message={message}
+        currentPlayer={currentPlayer}
+        selectedTeam={selectedTeam}
+      />
 
       {!gameStarted && (
         <Button
@@ -289,11 +256,11 @@ export default function Game() {
             gridTemplateColumns: "repeat(5, 0.2fr)",
             gridGap: "10px",
             justifyContent: "center",
-            mt: "150px",
+            mt: "200px",
             backgroundColor: "gray",
             width: "1000px",
             height: "800px",
-            border: "4px solid black",
+            border: `4px solid ${isPlayerTurn ? "red" : "blue"}`,
             borderRadius: "5px",
             padding: "10px",
             margin: "auto",
