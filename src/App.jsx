@@ -16,6 +16,7 @@ export default function App() {
       <SelectedTeamProvider>
         <GameProvider>
           <Routes>
+            {" "}
             <Route path="/" element={<StartScreen />} />
             <Route element={<MainLayout />}>
               <Route path="/game" element={<Game />} />

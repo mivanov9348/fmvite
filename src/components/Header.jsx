@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
-import { AppBar, Toolbar } from "@mui/material";
+import { NavLink, useNavigate } from "react-router-dom";
+import { AppBar, Toolbar, Button, Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledNavLink = styled(NavLink)(({ theme }) => ({
@@ -12,6 +12,13 @@ const StyledNavLink = styled(NavLink)(({ theme }) => ({
 }));
 
 export default function Header() {
+  const navigate = useNavigate();
+
+  function handleReset() {
+    localStorage.clear();
+    navigate("/");
+  }
+
   return (
     <AppBar
       position="fixed"
@@ -29,6 +36,14 @@ export default function Header() {
         <StyledNavLink to="/fixtures">Fixtures</StyledNavLink>
         <StyledNavLink to="/teamstats">Team Stats</StyledNavLink>
         <StyledNavLink to="/rules">Rules</StyledNavLink>
+
+        <Button
+          color="inherit"
+          onClick={handleReset}
+          sx={{ backgroundColor: "red" }}
+        >
+          Reset Game
+        </Button>
       </Toolbar>
     </AppBar>
   );

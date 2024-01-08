@@ -28,7 +28,7 @@ export default function GameScoreboard({
         mb: "5px",
       }}
     >
-      <Typography variant="h5" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
+      <Typography variant="h5" sx={{}}>
         <span
           style={{
             color: currentPlayer === 0 && gameStarted ? "red" : "blue",
@@ -45,7 +45,7 @@ export default function GameScoreboard({
           {currentGame ? currentGame.AwayTeam : "Away Team"}
         </span>
       </Typography>
-      <Typography variant="h6" sx={{ fontFamily: "JACKPORT COLLEGE NCV" }}>
+      <Typography variant="h6" sx={{}}>
         {currentGame
           ? `${currentGame.HomeTeamScore}:${currentGame.AwayTeamScore}`
           : "0:0"}

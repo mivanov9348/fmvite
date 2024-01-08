@@ -1,26 +1,29 @@
 /* eslint-disable react/prop-types */
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SelectedTeamContext = createContext();
 
-export function useSelectedTeam() {
-  return useContext(SelectedTeamContext);
-}
-
-export function useAllSelectedTeams() {
-  const { allTeams } = useSelectedTeam();
-  return allTeams;
-}
-
 export function SelectedTeamProvider({ children }) {
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [fixtures, setFixtures] = useState([]);
-  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(
+    () => JSON.parse(localStorage.getItem("selectedTeam")) || null
+  );
+  const [fixtures, setFixtures] = useState(
+    () => JSON.parse(localStorage.getItem("fixtures")) || []
+  );
+  const [teams, setTeams] = useState(
+    () => JSON.parse(localStorage.getItem("teams")) || []
+  );
   const navigate = useNavigate();
 
+  useEffect(() => {
+    localStorage.setItem("selectedTeam", JSON.stringify(selectedTeam));
+    localStorage.setItem("fixtures", JSON.stringify(fixtures));
+    localStorage.setItem("teams", JSON.stringify(teams));
+  }, [selectedTeam, fixtures, teams]);
+
   function checkDataAndRedirect() {
-    if (!selectedTeam || teams.length === 0 || teams.length < 20) {
+    if (!selectedTeam || teams.length === 0 || fixtures.length === 0) {
       navigate("/");
     }
   }
@@ -32,12 +35,14 @@ export function SelectedTeamProvider({ children }) {
         setSelectedTeam,
         fixtures,
         setFixtures,
-        checkDataAndRedirect,
         teams,
         setTeams,
+        checkDataAndRedirect,
       }}
     >
       {children}
     </SelectedTeamContext.Provider>
   );
 }
+
+export const useSelectedTeam = () => useContext(SelectedTeamContext);

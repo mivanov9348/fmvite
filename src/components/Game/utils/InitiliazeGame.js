@@ -1,4 +1,4 @@
-import faceArr from "./gameConstants.js";
+import faceArr from "./GameConstants.js";
 
 export function randomFace() {
   return faceArr[Math.floor(Math.random() * faceArr.length)];

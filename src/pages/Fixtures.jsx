@@ -16,8 +16,10 @@ export default function Fixtures() {
   const totalRounds = Math.max(...fixtures.map((x) => x.round));
 
   useEffect(() => {
+    console.log("sdadas");
+
     checkDataAndRedirect();
-  }, [checkDataAndRedirect]);
+  }, []);
 
   function handleRoundChange(e) {
     setSelectedRound(e.target.value);

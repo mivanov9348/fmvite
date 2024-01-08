@@ -33,7 +33,8 @@ const theme = createTheme({
 });
 
 export default function Standings() {
-  const { teams, selectedTeam, checkDataAndRedirect } = useSelectedTeam();
+  const { teams, selectedTeam, checkDataAndRedirect, fixtures } =
+    useSelectedTeam();
 
   useEffect(() => {
     checkDataAndRedirect();
@@ -54,6 +55,8 @@ export default function Standings() {
 
   const sortedTeams = [...teams].sort(sortTeams);
 
+  const allFixturesPlayed = fixtures.every((fixture) => fixture.isPlayed);
+
   return (
     <ThemeProvider theme={theme}>
       <Paper
@@ -66,6 +69,14 @@ export default function Standings() {
           mt: 2,
         }}
       >
+        {allFixturesPlayed && (
+          <Typography
+            variant="h6"
+            sx={{ color: "red", textAlign: "center", mb: 2 }}
+          >
+            End Of The Season!
+          </Typography>
+        )}
         <TableContainer component={Paper}>
           <Table
             sx={{

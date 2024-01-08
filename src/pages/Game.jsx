@@ -7,12 +7,21 @@ import { useGame } from "../contexts/GameContext";
 import {
   initiliazeCardFace,
   findNextFixture,
-} from "../components/Game/utils/setGameUtills";
+} from "../components/Game/utils/InitiliazeGame";
 import {
   calculateMatchesResult,
   updateTeamStandings,
-} from "../components/Game/utils/endGameUtills";
+} from "../components/Game/utils/EndGameUtills";
 import GameScoreboard from "../components/Game/GameScoreboard";
+import {
+  handleFulltimeAction,
+  handleGoalAction,
+  handleSaveAction,
+  handleShootAction,
+  handleTackleAction,
+  handleThrowinAction,
+} from "../components/Game/utils/actionHandlers";
+import { useNavigate } from "react-router-dom";
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState(false);
@@ -25,6 +34,7 @@ export default function Game() {
   const [showNextMatchButton, setShowNextMatchButton] = useState(false);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true);
   const [message, setMessage] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isPlayerTurn) {
@@ -32,14 +42,34 @@ export default function Game() {
     }
   }, [isPlayerTurn]);
 
-  function startGame() {
-    const nextFixture = findNextFixture(fixtures, selectedTeam);
+  function newGame(nextFixture) {
     setCurrentGame(nextFixture);
     setGameStarted(true);
+    setGameEnded(false);
+    setShowNextMatchButton(false);
     setCurrentPlayer(0);
     const faces = initiliazeCardFace();
     setCardFaces(faces);
-    setShowNextMatchButton(false);
+    setIsPlayerTurn(true);
+  }
+
+  function startGame() {
+    const nextFixture = findNextFixture(fixtures, selectedTeam);
+    if (nextFixture) {
+      newGame(nextFixture);
+    } else {
+      console.log("No fixtures to start");
+    }
+  }
+
+  function loadNextMatch() {
+    const nextFixture = findNextFixture(fixtures, selectedTeam);
+    if (nextFixture) {
+      newGame(nextFixture);
+    } else {
+      console.log("No more fixtures available");
+      navigate("/standings");
+    }
   }
 
   function handleCardAction(face, isPlayer = true, index) {
@@ -65,89 +95,42 @@ export default function Game() {
 
     switch (face) {
       case "goal":
-        setCurrentGame((currentGame) => {
-          // Determine if the selected team is playing at home or away
-          const isPlayerHomeTeam = selectedTeam.id === currentGame.HomeTeamId;
-
-          if (isPlayer) {
-            // Player's turn
-            if (isPlayerHomeTeam) {
-              // Player's team is the home team
-              return {
-                ...currentGame,
-                HomeTeamScore: currentGame.HomeTeamScore + 1,
-              };
-            } else {
-              // Player's team is the away team
-              return {
-                ...currentGame,
-                AwayTeamScore: currentGame.AwayTeamScore + 1,
-              };
-            }
-          } else {
-            // PC's turn
-            if (isPlayerHomeTeam) {
-              // PC's team is the away team
-              return {
-                ...currentGame,
-                AwayTeamScore: currentGame.AwayTeamScore + 1,
-              };
-            } else {
-              // PC's team is the home team
-              return {
-                ...currentGame,
-                HomeTeamScore: currentGame.HomeTeamScore + 1,
-              };
-            }
-          }
-        });
+        handleGoalAction(currentGame, selectedTeam, setCurrentGame, isPlayer);
         changeTurn = true;
         break;
 
       case "save":
-        setMessage("The goalkeeper saves the ball!");
+        handleSaveAction(setMessage);
         changeTurn = true;
         break;
       case "tackle":
-        setMessage("Tackle! The ball is for the opposite!");
+        handleTackleAction(setMessage);
         changeTurn = true;
         break;
       case "fulltime":
-        setGameEnded(true);
-
-        setCurrentGame((currentGame) => {
-          const updatedGame = { ...currentGame, isPlayed: true };
-
-          setFixtures((fixtures) => {
-            const updatedFixtures = fixtures.map((f) =>
-              f.id === updatedGame.id ? updatedGame : f
-            );
-
-            const newFixtures = calculateMatchesResult(
-              updatedFixtures,
-              updatedGame.round
-            );
-            setTeams(() => {
-              return updateTeamStandings(newFixtures, teams, updatedGame.round);
-            });
-
-            return newFixtures;
-          });
-
-          return updatedGame;
-        });
-
-        setShowNextMatchButton(true);
+        handleFulltimeAction(
+          setGameEnded,
+          currentGame,
+          setCurrentGame,
+          setFixtures,
+          calculateMatchesResult,
+          setTeams,
+          updateTeamStandings,
+          fixtures,
+          teams,
+          setShowNextMatchButton
+        );
         return;
 
       case "throwin":
-        setMessage("The player is ready for throw in!");
+        handleThrowinAction(setMessage);
         changeTurn = false;
         if (!isPlayer) {
           initiatePCTurn();
         }
         break;
       case "shoot":
+        handleShootAction(setMessage);
         changeTurn = false;
         if (!isPlayer) {
           initiatePCTurn();
@@ -177,23 +160,6 @@ export default function Game() {
 
       handleCardAction(pcAction.face, false, originalIndex);
     }, 1000);
-  }
-
-  function loadNextMatch() {
-    const nextFixture = findNextFixture(fixtures, selectedTeam);
-
-    if (nextFixture) {
-      setCurrentGame(nextFixture);
-      setGameStarted(true);
-      setGameEnded(false);
-      setShowNextMatchButton(false);
-      setCurrentPlayer(0);
-      const faces = initiliazeCardFace();
-      setCardFaces(faces);
-      setIsPlayerTurn(true);
-    } else {
-      console.log("No more fixtures available");
-    }
   }
 
   return (
