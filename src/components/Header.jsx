@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledNavLink = styled(NavLink)(({ theme }) => ({

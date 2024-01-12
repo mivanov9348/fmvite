@@ -38,7 +38,7 @@ export default function Game() {
 
   useEffect(() => {
     if (!isPlayerTurn) {
-      setTimeout(initiatePCTurn, 2000);
+      setTimeout(initiatePCTurn, 500);
     }
   }, [isPlayerTurn]);
 
@@ -73,8 +73,6 @@ export default function Game() {
   }
 
   function handleCardAction(face, isPlayer = true, index) {
-    console.log("Action:", face, "Is Player:", isPlayer);
-
     if (
       gameEnded ||
       (isPlayer && !isPlayerTurn) ||
@@ -88,8 +86,13 @@ export default function Game() {
     let changeTurn = true;
 
     setCardFaces((prevFaces) => {
-      const newFaces = [...prevFaces];
-      newFaces[index].opened = true;
+      const newFaces = prevFaces.map((card, idx) => {
+        if (idx === index) {
+          return { ...card, opened: true };
+        }
+        return card;
+      });
+      console.log("Card faces updated:", newFaces);
       return newFaces;
     });
 
@@ -159,7 +162,7 @@ export default function Game() {
       );
 
       handleCardAction(pcAction.face, false, originalIndex);
-    }, 1000);
+    }, 100);
   }
 
   return (
@@ -235,6 +238,7 @@ export default function Game() {
           {cardFaces.map((card, index) => (
             <Box key={index} sx={{ textAlign: "center" }}>
               <GameCard
+                key={`${card.face}-${card.opened}`} // Changing key will force re-render
                 back="backcard"
                 face={card.face}
                 flipped={card.opened}

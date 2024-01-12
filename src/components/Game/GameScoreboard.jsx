@@ -11,8 +11,6 @@ export default function GameScoreboard({
 
   currentPlayer,
 }) {
-  console.log(currentGame);
-
   return (
     <Box
       sx={{
